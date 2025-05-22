@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 10s # Server 抓取頻率
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: 'gitlab-runner'
+    static_configs:
+      - targets: ['gitlab-runner:9252']
+
+  - job_name: 'gitlab-ci-pipelines-exporter'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    static_configs:
+      - targets: ['gitlab-ci-pipelines-exporter:8080']

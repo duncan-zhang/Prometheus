@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=14d'
+    ports:
+      - '9090:9090'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.9
+    container_name: grafana
+    volumes:
+     - ./grafana:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: pass
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      GF_LOG_FILTERS: rendering:debug
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+
+  gitlab-ci-pipelines-exporter:
+    image: mvisonneau/gitlab-ci-pipelines-exporter:latest
+    container_name: gitlab-exporter
+    volumes:
+      - ./gitlab-exporter/gitlab-ci-pipelines-exporter.yml:/etc/gitlab-ci-pipelines-exporter.yml
+    ports:
+      - '8080:8080'
+    environment:
+      GCPE_GITLAB_TOKEN: '<Gitlab_Token>'
+      GCPE_CONFIG: /etc/gitlab-ci-pipelines-exporter.yml
+      GCPE_INTERNAL_MONITORING_LISTENER_ADDRESS: tcp://127.0.0.1:8082
+    restart: unless-stopped

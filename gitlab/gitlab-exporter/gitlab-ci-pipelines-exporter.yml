@@ -1,0 +1,17 @@
+---
+log:
+  level: debug
+
+gitlab:
+  url: https://gitlab.com
+  token: '<Gitlab_Token>'
+
+# Pull jobs related metrics on all projects
+project_defaults:
+  pull:
+    pipeline:
+      jobs:
+        enabled: true
+
+projects:
+ - name: myprojects/*
