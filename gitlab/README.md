@@ -11,7 +11,7 @@ mkdir -p ./grafana
 sudo chown -R 472:472 ./grafana
 ```
 ## 2. Gitlab API Token
-1. 啟用Mertics-Promtheus(default enabled)
+1. 啟用Mertics-Promtheus(default enabled)  
 `Gitlab Website -> admin -> settings -> Metrics and profiling -> Metrics-Prometheus`
 2. 獲取Personal Access Token
 - 1. 以 admin 身份登入 GitLab
