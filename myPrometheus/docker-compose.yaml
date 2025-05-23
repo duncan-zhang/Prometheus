@@ -8,8 +8,8 @@ services:
   #      - "8080:8080"
   #      - "8081:8081"
   #    command:
-  #      --telegram.api-token=7612279650:AAFfwxRZJpzURDygf-bfgBE42Jkh83s3M6k
-  #      --telegram.chat-id=-4592173189
+  #      --telegram.api-token=<token>
+  #      --telegram.chat-id=<id>
 
   #  alertmanager:
   #    image: prom/alertmanager:latest
