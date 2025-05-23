@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+
+  prometheus_fortigate_exporter:
+    #build: ./
+    image: fortigate_exporter-prometheus_fortigate_exporter:latest #If fortigate-exporter image was build done.
+    container_name: fortigate_exporter
+    ports:
+      - 9710:9710
+    volumes:
+      - ./fortigate-key.yaml:/config/fortigate-key.yaml
+    # Applying multiple parameters
+    command: ["-auth-file", "/config/fortigate-key.yaml", "-insecure"]
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=14d'
+    ports:
+      - '9090:9090'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.9
+    container_name: grafana
+    volumes:
+     - ./grafana:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: pass
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      GF_LOG_FILTERS: rendering:debug
+    ports:
+      - '3000:3000'
+    restart: unless-stopped

@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    restart: always
+    volumes:
+        - ./influxdb:/var/lib/influxdb
+    environment:
+      - TZ=Asia/Taipei
+      - INFLUXDB_DB=telegraf #定義數據庫名稱
+
+  telegraf:
+    image: telegraf:1.32.0-alpine
+    restart: always
+    container_name: telegraf
+    ports:
+      - 9273:9273
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+      - ./telegraf/telegraf.d/:/etc/telegraf/telegraf.d/
+    command: telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d
+    depends_on:
+      - influxdb
+
+  grafana:
+    image: grafana/grafana:8.2.5
+    container_name: grafana
+    volumes:
+     - ./grafana:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: pass
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      GF_LOG_FILTERS: rendering:debug
+    ports:
+      - '3000:3000'

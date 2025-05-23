@@ -1,0 +1,27 @@
+"https://my-fortigate":
+  token: <api-key-goes-here>
+  probes:
+    include:
+      - System
+      - VPN
+      - Firewall/Policies
+      # Include only probes with name starting with: System or VPN + probe: Firewall/Policies
+      # Other probes are excluded because there were not explictly included
+# "https://my-other-fortigate:8443":
+#   token: api-key-goes-here
+#   probes:
+#     exclude:
+#       - Wifi
+#       - Firewall/LoadBalance
+#       # Exclude probes with name starting with: Wifi + probe: Firewall/LoadBalance
+#       # All other probes are included by default because include list is empty
+# "https://my-other-orther-fortigate:8443":
+#   token: api-key-goes-here
+#   probes:
+#     include:
+#       - System
+#       - Firewall
+#     exclude:
+#       - System/LinkMonitor
+#       # Inlcude probes with name starting with: System and Firewall
+#       # Then exclude probe: System/LinkMonitor
