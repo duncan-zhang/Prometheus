@@ -25,4 +25,14 @@ sudo chown -R 472:472 ./grafana
 
 ## 3. 配置docker-compose
 將`token`填入`docker-compose.yaml`的`GCPE_GITLAB_TOKEN`
- 
+
+## 4. Git-runner配置
+- 1. 啟用git-runner監聽port(default:9252)
+ ```sh
+ vim /etc/gitlab-runner/config.toml
+ ```
+ ```sh
+ #在globe區域配置 最上面區塊
+ listen_address = "0.0.0.0:9252"
+```
+- 2. 確認`prometheus.yml`是否配置`targets`
