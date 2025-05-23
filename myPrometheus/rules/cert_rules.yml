@@ -1,0 +1,9 @@
+groups:
+  - name: Certification Days Remaining
+    rules:
+      - alert: Cert Days Remaining
+        expr: monitor_cert_days_remaining  < 7
+        for: 5m
+        annotations:
+          description: ⚠️ {{ $labels.monitor_name }} will expire after {{ $value }} days.
+

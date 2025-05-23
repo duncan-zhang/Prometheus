@@ -1,0 +1,9 @@
+groups:
+  - name: Fortigate Alert Rules
+    rules:
+      - alert: Fortigate sessions
+        expr: fortigate_current_sessions  < 2000
+        for: 5m
+        annotations:
+          description: ⚠️ Fortigate sessions exceeded {{ $value }}.
+

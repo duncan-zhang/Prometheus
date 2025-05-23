@@ -1,0 +1,9 @@
+"https://10.0.100.1:8443":
+  token: 39zgHHq6pyHpbyNQ4drz5mzmgmGtr4
+  probes:
+    include:
+      - System
+      - VPN
+      - Firewall/Policies
+      - WebUI/State
+      - License/Status

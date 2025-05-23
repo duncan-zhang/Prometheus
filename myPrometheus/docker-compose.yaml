@@ -1,0 +1,117 @@
+version: '3.8'
+services:
+
+  #  alertgram:
+  #    image: slok/alertgram:latest
+  #    container_name: alertgram
+  #    ports:
+  #      - "8080:8080"
+  #      - "8081:8081"
+  #    command:
+  #      --telegram.api-token=7612279650:AAFfwxRZJpzURDygf-bfgBE42Jkh83s3M6k
+  #      --telegram.chat-id=-4592173189
+
+  #  alertmanager:
+  #    image: prom/alertmanager:latest
+  #    container_name: alertmanager
+  #    ports:
+  #      - '9093:9093'
+  #    volumes:
+  #      - ./alertmanager:/etc/alertmanager
+  #      - /etc/localtime:/etc/localtime:ro
+  #    command:
+  #      - --config.file=/etc/alertmanager/alertmanager.yml
+  #    restart: unless-stopped
+
+  prometheus_fortigate_exporter:
+    #build: ./
+    image: fortigate_exporter-prometheus_fortigate_exporter:latest
+    container_name: fortigate_exporter
+    ports:
+      - 9710:9710
+    volumes:
+      - ./fortigate-key.yaml:/config/fortigate-key.yaml
+    # Applying multiple parameters
+    command: ["-auth-file", "/config/fortigate-key.yaml", "-insecure"]
+    restart: unless-stopped
+ 
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    volumes:
+      - /:/host:ro,rslave
+    command:
+      - '--path.rootfs=/host'
+    restart: unless-stopped
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - ./uptime-kuma:/app/data
+    ports:
+      - '3001:3001'
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - '8080:8080'
+    restart: unless-stopped    
+
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    restart: always
+    volumes:
+        - ./influxdb:/var/lib/influxdb
+    environment:
+      - TZ=Asia/Taipei
+      - INFLUXDB_DB=telegraf           #定義數據庫名稱
+
+  telegraf:
+    image: telegraf:1.32.0-alpine
+    restart: always
+    container_name: telegraf
+    ports:
+      - 9273:9273
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+      - ./telegraf/telegraf.d/:/etc/telegraf/telegraf.d/
+    command: telegraf --config /etc/telegraf/telegraf.conf --config-directory /etc/telegraf/telegraf.d
+    depends_on:
+      - influxdb
+
+  prometheus:
+    image: prom/prometheus:v2.35.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./rules:/etc/prometheus/rules
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=14d'
+    ports:
+      - '9090:9090'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.9
+    container_name: grafana
+    volumes:
+     - ./grafana:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: qwerG789%
+      GF_RENDERING_CALLBACK_URL: http://grafana:3000/
+      GF_LOG_FILTERS: rendering:debug
+    ports:
+      - '3000:3000'
+    restart: unless-stopped

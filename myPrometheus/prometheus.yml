@@ -1,0 +1,54 @@
+global:
+  scrape_interval: 10s # Server 抓取頻率
+
+    #rule_files:
+    #  - rules/fortigate_rules.yml
+    #  - rules/cert_rules.yml
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: 'fortigate_exporter'
+    metrics_path: /probe
+    static_configs:
+      - targets:
+        - https://10.0.100.1:8443
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+        # Drop the https:// and port (if specified) for the 'instance=' label
+        regex: '(?:.+)(?::\/\/)([^:]*).*'
+      - target_label: __address__
+        replacement: 'fortigate_exporter:9710'
+
+  - job_name: 'uptime_kuma'
+    scrape_interval: 10s
+    scheme: http
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['uptime-kuma:3001']
+    basic_auth: # Only needed if authentication is enabled (default) 
+      password: 'uk1_6OJFMoqZ5ld-UMwPcZjcEEYL385bUbrt3lKUyAKJ'
+
+  - job_name: "cadvisor"
+    scrape_interval: 10s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  - job_name: "node"
+    metrics_path: '/metrics'
+    static_configs:
+      - targets:
+        - '10.0.100.22:9100'
+        - '10.0.101.31:9100'
+        - '10.0.101.33:9100'
+
+          #alerting:
+          #  alertmanagers:
+          #    - static_configs:
+          #      - targets: ['alertmanager:9093']
